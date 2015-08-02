@@ -1,0 +1,7 @@
+name = Paragraphs CKEditor Integration
+description = Adds a CKEDITOR plugin to allow inserting paragraphs into a text blob using a CKEDITOR dialog.
+core = 7.x
+package = Paragraphs
+
+dependencies[] = ckeditor
+dependencies[] = paragraphs_extra

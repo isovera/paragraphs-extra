@@ -1,0 +1,6 @@
+name = Paragraphs Extra
+description = Provides a wealth of additional functionality for the Paragraphs module.
+core = 7.x
+package = Paragraphs
+
+dependencies[] = paragraphs

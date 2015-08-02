@@ -1,0 +1,30 @@
+<?php
+
+function paragraphs_extra_schema() {
+  $schema = array();
+  $schema['paragraphs_extra_bundle_info'] = array(
+    'description' => 'A table for attaching extra bundle data',
+    'fields' => array(
+      'bundle' => array(
+        'description' => 'The bundle machine name key.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'icon' => array(
+        'description' => 'Reference to the bundle icon.',
+        'type' => 'int',
+        'not null' => FALSE,
+        'unsigned' => TRUE,
+      ),
+      'description' => array(
+        'description' => 'A description of the bundle.',
+        'type' => 'text',
+        'not null' => FALSE,
+      ),
+    ),
+    'primary key' => array('bundle'),
+  );
+  return $schema;
+}

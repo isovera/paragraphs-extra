@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve">
+  <symbol id="edit" viewBox="0 0 300 300">
+    <circle fill="currentColor" cx="150.5" cy="149.8" r="125"/>
+    <path d="M150.5,14.8c-74.6,0-135,60.4-135,135c0,74.6,60.4,135,135,135c74.6,0,135-60.4,135-135
+      C285.5,75.2,225.1,14.8,150.5,14.8z M150.5,265.7c-64,0-115.9-51.9-115.9-115.9c0-64,51.9-115.9,115.9-115.9
+      c64,0,115.9,51.9,115.9,115.9C266.4,213.8,214.5,265.7,150.5,265.7z"/>
+    <circle cx="150.5" cy="149.8" r="104.4"/>
+    <polygon fill="currentColor" points="109.7,205.7 92.3,210.9 96.4,193.1 100.6,175.4 113.9,187.9 127.2,200.4"/>
+    <polygon fill="currentColor" points="133.4,194.1 106.7,169.1 182.1,88.7 208.8,113.7"/>
+  </symbol>
+  <symbol id="collapse" viewBox="0 0 300 300">
+    <circle fill="currentColor" cx="150.5" cy="149.8" r="125"/>
+    <path d="M55.1,54.3c-52.7,52.7-52.7,138.2,0,190.9c52.7,52.7,138.2,52.7,190.9,0c52.7-52.7,52.7-138.2,0-190.9
+      C193.3,1.6,107.8,1.6,55.1,54.3z M232.5,231.8c-45.3,45.3-118.7,45.3-163.9,0c-45.3-45.3-45.3-118.7,0-163.9
+      c45.3-45.3,118.7-45.3,163.9,0C277.7,113.1,277.7,186.5,232.5,231.8z"/>
+    <circle cx="150.5" cy="149.8" r="104.4"/>
+    <polygon fill="currentColor" points="216.8,104.7 150.3,219.8 83.9,104.7 "/>
+  </symbol>
+  <symbol id="add" viewBox="0 0 300 300">
+    <circle fill="currentColor" cx="150.5" cy="149.8" r="125"/>
+    <path d="M150.5,14.8c-74.6,0-135,60.4-135,135s60.4,135,135,135s135-60.4,135-135S225.1,14.8,150.5,14.8z M150.5,265.7
+            c-64,0-115.9-51.9-115.9-115.9S86.5,33.9,150.5,33.9s115.9,51.9,115.9,115.9S214.5,265.7,150.5,265.7z"/>
+    <circle cx="150.5" cy="149.8" r="104.4"/>
+    <line fill="none" stroke="currentColor" stroke-width="40" stroke-miterlimit="10" x1="150" y1="72" x2="150" y2="226"/>
+    <line fill="none" stroke="currentColor" stroke-width="40" stroke-miterlimit="10" x1="72" y1="149" x2="226" y2="149"/>
+  </symbol>
+  <symbol id="delete" viewBox="0 0 300 300">
+    <circle fill="currentColor" cx="150.5" cy="149.8" r="125"/>
+    <path d="M151.338,14.8c-74.557,0-134.996,60.44-134.996,135.002c0,74.554,60.439,134.998,134.996,134.998
+      c74.556,0,135.004-60.443,135.004-134.998C286.342,75.241,225.894,14.8,151.338,14.8z M151.338,265.714
+      c-64.013,0-115.908-51.901-115.908-115.912c0-64.018,51.895-115.911,115.908-115.911c64.016,0,115.909,51.894,115.909,115.911
+      C267.247,213.813,215.354,265.714,151.338,265.714z"/>
+    <circle cx="151.341" cy="149.802" r="104.428"/>
+    <polygon fill="currentColor" points="213.878,180.6 182.131,212.344 151.338,181.547 120.541,212.344 88.799,180.6 119.586,149.802
+      88.799,119.013 120.541,87.256 151.338,118.058 182.131,87.256 213.878,119.013 183.077,149.802"/>
+  </symbol>
+  <symbol id="full" viewBox="0 0 300 300">
+    <line fill="none" stroke="currentColor" stroke-width="12" stroke-miterlimit="10" x1="20" y1="48" x2="278" y2="48"/>
+    <line fill="none" stroke="currentColor" stroke-width="12" stroke-miterlimit="10" x1="21" y1="92" x2="279" y2="92"/>
+    <line fill="none" stroke="currentColor" stroke-width="12" stroke-miterlimit="10" x1="20" y1="132" x2="278" y2="132"/>
+    <line fill="none" stroke="currentColor" stroke-width="12" stroke-miterlimit="10" x1="21" y1="173" x2="279" y2="173"/>
+    <line fill="none" stroke="currentColor" stroke-width="12" stroke-miterlimit="10" x1="20" y1="214" x2="278" y2="214"/>
+    <line fill="none" stroke="currentColor" stroke-width="12" stroke-miterlimit="10" x1="21" y1="255" x2="279" y2="255"/>
+  </symbol>
+  <symbol id="condensed" viewBox="0 0 300 300">
+    <line fill="none" stroke="currentColor" stroke-width="12" stroke-miterlimit="10" x1="20" y1="48" x2="278" y2="48"/>
+    <line fill="none" stroke="currentColor" stroke-width="12" stroke-miterlimit="10" x1="21" y1="92" x2="279" y2="92"/>
+    <line fill="none" stroke="currentColor" stroke-width="12" stroke-miterlimit="10" x1="20" y1="132" x2="139" y2="132"/>
+  </symbol>
+</svg>

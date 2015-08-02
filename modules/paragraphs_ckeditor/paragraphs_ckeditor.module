@@ -1,0 +1,49 @@
+<?php
+/**
+ * @file
+ *
+ * Supports CKEDITOR integration for the paragraphs module.
+ */
+
+/**
+ * Implements hook_ckeditor_plugin().
+ */
+function paragraphs_ckeditor_ckeditor_plugin() {
+  $plugin_path = drupal_get_path('module', 'paragraphs_ckeditor');
+  $plugin_path .= '/plugins/ckeditor';
+  return array(
+    'paragraphsInsertParagraph' => array(
+      'name' => t('paragraphsInsertParagraph'),
+      'desc' => t('Insert a Paragraph in CKEDITOR.'),
+      'path' => $plugin_path . '/paragraphsInsertParagraph/',
+      'buttons' => array(
+        'paragraphsInsertParagraph' => array(
+          'icon' => 'images/component.png',
+          'label' => 'Insert Paragraph',
+        ),
+      ),
+    ),
+    'paragraphsSplitParagraph' => array(
+      'name' => t('paragraphsSplitParagraph'),
+      'desc' => t('Split a paragraph in CKEDITOR.'),
+      'path' => $plugin_path . '/paragraphsSplitParagraph/',
+      'buttons' => array(
+        'paragraphsSplitParagraph' => array(
+          'icon' => 'images/split.png',
+          'label' => 'Split Paragraph',
+        ),
+      ),
+    ),
+  );
+} 
+
+/**
+ * Implements hook_field_widget_form_alter().
+ */
+function paragraphs_ckeditor_field_widget_form_alter(&$element, &$form_state, $context) {
+  $wrapper_id = paragraphs_extra_get_widget_wrapper_id($element, $context);
+  if ($wrapper_id) {
+    module_load_include('inc', 'paragraphs_ckeditor', 'includes/paragraphs_ckeditor.decorator');
+    paragraphs_ckeditor_decorator_decorate($element);
+  }
+}
