@@ -2,5 +2,11 @@ name = Paragraphs Extra
 description = Provides a wealth of additional functionality for the Paragraphs module.
 core = 7.x
 package = Paragraphs
-
+dependencies[] = ctools
 dependencies[] = paragraphs
+dependencies[] = views
+features[ctools][] = views:views_default:3.0
+features[features_api][] = api:2
+features[views_view][] = paragraphs_extra_bundles
+mtime = 1438630100
+project path = sites/all/modules
