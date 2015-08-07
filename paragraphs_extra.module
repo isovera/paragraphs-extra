@@ -1,27 +1,19 @@
 <?php
 /**
  * @file
- *
  * Implements back end support for splitting a paragraph into multiple
  * paragraphs.
  */
 
-/**
- * Implements hook_views_api().
- */
-function paragraphs_extra_views_api() {
-  return array(
-    'api' => 3,
-  );
-}
+include_once 'paragraphs_extra.features.inc';
 
 /**
  * Implements hook_menu().
  */
 function paragraphs_extra_menu() {
   $info = array();
-  $info['ajax/paragraphs-extra/%ctools_js/bundle-select/%'] = array(
-    'title' => t('Insert'),
+  $info['admin/paragraphs-extra/%ctools_js/bundle-select/%'] = array(
+    'title' => 'Insert',
     'page callback' => 'paragraphs_extra_bundle_info_select_page',
     'page arguments' => array(2, 4),
     'access callback' => TRUE,
@@ -68,6 +60,19 @@ function paragraphs_extra_form_paragraphs_admin_bundle_form_alter(&$form, &$form
   paragraphs_extra_bundle_info_form_attach($form, $form_state);
 }
 
+/**
+ * Implements hook_field_attach_delete_bundle().
+ */
+function paragraphs_extra_field_attach_delete_bundle($entity_type, $bundle, $instances) {
+  if ($entity_type == 'paragraphs_item') {
+    paragraphs_extra_include('bundle_info');
+    paragraphs_extra_bundle_info_handle_delete($bundle);
+  }
+}
+
+/**
+ * Handles form submissions one the bundle info form.
+ */
 function paragraphs_extra_bundle_info_form_submit($form, &$form_state) {
   paragraphs_extra_include('bundle_info');
   paragraphs_extra_bundle_info_handle_form_submit($form, $form_state);
@@ -82,20 +87,42 @@ function paragraphs_extra_ajax_api_command_submit($form, &$form_state) {
 }
 
 
+/**
+ * Handles complete form refresh requests.
+ */
 function paragraphs_extra_pretty_paragraphs_reload_submit($form, &$form_state) {
   paragraphs_extra_include('pretty_paragraphs');
   paragraphs_extra_pretty_paragraphs_handle_reload_submit($form, $form_state);
 }
 
+/**
+ * Handles single element preview rebuild requests.
+ */
 function paragraphs_extra_pretty_paragraphs_preview_rebuild_submit($form, &$form_state) {
   paragraphs_extra_include('pretty_paragraphs');
 }
 
+/**
+ * Handles pretty paragraphs settings for a specific paragraphs field instance.
+ */
 function paragraphs_extra_pretty_paragraphs_instance_settings_submit($form, &$form_state) {
   paragraphs_extra_include('pretty_paragraphs');
   paragraphs_extra_pretty_paragraphs_handle_instance_settings_submit($form, $form_state);
 }
 
+/**
+ * Gets the HTML id attribute of a paragraphs widget form wrapper.
+ *
+ * This is the target used for ajax-based paragraphs form rebuild effects.
+ *
+ * @param array $element
+ *   The widget form element render array.
+ * @param array $context
+ *   A context array that must contain the key $context['field']['type'].
+ *
+ * @return string
+ *   The form wrapper id.
+ */
 function paragraphs_extra_get_widget_wrapper_id($element, $context) {
   $wrapper_id = NULL;
   if ($context['field']['type'] == 'paragraphs') {
@@ -106,10 +133,33 @@ function paragraphs_extra_get_widget_wrapper_id($element, $context) {
   return $wrapper_id;
 }
 
+/**
+ * A utility function for including a specific subsystem implementation file.
+ *
+ * These files reside in 'includes/paragraphs_extra.<subsystem>.inc'.
+ *
+ * @param string $type
+ *   The subsystem file to load.
+ */
 function paragraphs_extra_include($type) {
   module_load_include('inc', 'paragraphs_extra', 'includes/paragraphs_extra.' . $type);
 }
 
+/**
+ * Builds a name for a paragraphs_extra HTML id attribute.
+ *
+ * The generated id for this function is garaunteed to be unique.
+ *
+ * @see drupal_html_id()
+ *
+ * @param string $namespace
+ *   The name of the feature the id belongs to.
+ * @param string $name
+ *   The name of the specific id.
+ *
+ * @return string
+ *   A fully built attribute name.
+ */
 function _paragraphs_extra_id($namespace, $name = NULL) {
   $id = 'paragraphs_extra_' . $namespace;
   if ($name) {
@@ -118,6 +168,17 @@ function _paragraphs_extra_id($namespace, $name = NULL) {
   return drupal_html_id($id);
 }
 
+/**
+ * Builds a name for a paragraphs_extra HTML class attribute.
+ *
+ * @param string $namespace
+ *   The name of the feature the class belongs to.
+ * @param string $name
+ *   The name of the specific class.
+ *
+ * @return string
+ *   A fully built attribute name.
+ */
 function _paragraphs_extra_class($namespace, $name = NULL) {
   $class = 'paragraphs-extra-' . $namespace;
   if ($name) {
@@ -126,6 +187,17 @@ function _paragraphs_extra_class($namespace, $name = NULL) {
   return $class;
 }
 
+/**
+ * Builds a name for a paragraphs_extra HTML data attribute.
+ *
+ * @param string $namespace
+ *   The name of the feature the data belongs to.
+ * @param string $name
+ *   The name of the specific data.
+ *
+ * @return string
+ *   A fully built attribute name.
+ */
 function _paragraphs_extra_data($namespace, $name = NULL) {
   $data = 'data-paragraphs-extra-' . $namespace;
   if ($name) {
@@ -134,10 +206,29 @@ function _paragraphs_extra_data($namespace, $name = NULL) {
   return $data;
 }
 
+/**
+ * Retrieves a paragraphs_extra persistent variable.
+ *
+ * @param string $key
+ *   The variable key.
+ * @param mixed $default
+ *   A fallback value in case the requested variable does not exist.
+ *
+ * @return mixed
+ *   A stored variable value.
+ */
 function _paragraphs_extra_vget($key, $default = NULL) {
   return variable_get('paragraphs_extra_' . $key, $default);
 }
 
+/**
+ * Sets a paragraphs_extra persistent variable.
+ *
+ * @param string $key
+ *   The variable key.
+ * @param mixed $value
+ *   The value to be stored.
+ */
 function _paragraphs_extra_vset($key, $value) {
   return variable_set('paragraphs_extra_' . $key, $value);
 }

@@ -1,11 +1,20 @@
 <?php
 /**
  * @file
+ * Handle integration with the paragarph item.
  */
 
+/**
+ * Attaches metadata to paragraph items in paragraphs field widgets.
+ *
+ * This provides a mechanism for the javascript layer to find fields that are
+ * using CKEDITOR.
+ *
+ * @param array &$element
+ *   The paragraphs widget element to decorate.
+ */
 function paragraphs_ckeditor_decorator_decorate(&$element) {
   $element['#attached']['js'][] = drupal_get_path('module', 'paragraphs_ckeditor') . '/js/CkeditorDomSplitter.js';
-  $element['#attached']['js'][] = drupal_get_path('module', 'paragraphs_ckeditor') . '/js/ParagraphsCkeditorData.js';
   foreach ($element as $delta => &$item) {
     if (is_numeric($delta)) {
       foreach (element_children($item) as $field_candidate) {

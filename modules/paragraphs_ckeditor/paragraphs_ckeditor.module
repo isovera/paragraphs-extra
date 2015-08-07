@@ -1,7 +1,6 @@
 <?php
 /**
  * @file
- *
  * Supports CKEDITOR integration for the paragraphs module.
  */
 
@@ -35,12 +34,14 @@ function paragraphs_ckeditor_ckeditor_plugin() {
       ),
     ),
   );
-} 
+}
 
 /**
  * Implements hook_field_widget_form_alter().
  */
 function paragraphs_ckeditor_field_widget_form_alter(&$element, &$form_state, $context) {
+  $element['#attached']['js'][] = drupal_get_path('module', 'paragraphs_ckeditor') . '/js/ParagraphsCkeditorData.js';
+  $element['#attached']['js'][] = drupal_get_path('module', 'paragraphs_ckeditor') . '/js/CkeditorDomSplitter.js';
   $wrapper_id = paragraphs_extra_get_widget_wrapper_id($element, $context);
   if ($wrapper_id) {
     module_load_include('inc', 'paragraphs_ckeditor', 'includes/paragraphs_ckeditor.decorator');

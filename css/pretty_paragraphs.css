@@ -8,11 +8,6 @@
   padding-right: 7rem;
 }
 
-@media screen and (min-width: 320px) {
-  .paragraphs-extra-mobile-only {
-  }
-}
-
 .paragraphs-extra-pretty-paragraphs-hover,
 .paragraphs-extra-pretty-paragraphs-button,
 .paragraphs-extra-pretty-paragraphs-hover .form-item > label {
@@ -31,6 +26,7 @@
   position: absolute;
   right: 0;
   top: 0;
+  z-index: 1;
 }
 
 .paragraphs-extra-pretty-paragraphs-button {
@@ -131,6 +127,7 @@
   left: -30px;
   top: -2rem;
   text-align: center;
+  z-index: 0;
 }
 
 .paragraphs-extra-pretty-paragraphs-button--add,
@@ -179,7 +176,7 @@
 }
 
 .paragraphs-extra-bundle-option--hover {
-  background: #eee;
+  background: #f3f3f3;
 }
 
 .paragraphs-extra-bundle-option__name {
@@ -189,6 +186,7 @@
 
 .paragraphs-extra-bundle-option__icon {
   max-width: 75%;
+  margin: 0 auto;
 }
 
 #modalContent {

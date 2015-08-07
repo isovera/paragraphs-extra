@@ -465,8 +465,10 @@
   };
   Drupal.behaviors.ParagraphsExtraApi = {
     attach: function (context, settings) {
+      var nodeName = $(context).attr('nodeName');
+
       // Only do a full initialization / load on document load.
-      if ($(context).attr('nodeName').toLowerCase() == '#document') {
+      if (nodeName && nodeName.toLowerCase() == '#document') {
         Drupal.ParagraphsExtra.Api.init(context, settings);
         Drupal.ParagraphsExtra.Api.load(context, settings);
       }

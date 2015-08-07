@@ -1,32 +1,41 @@
 <?php
+/**
+ * @file
+ * Provides the back end support for a javascript API for paragraphs widgets.
+ */
 
-function _paragraphs_extra_ajax_api_instance_id($context) {
-  $field_name = $context['field']['field_name'];
-  $host_type = $context['instance']['entity_type'];
-  $host_bundle = $context['instance']['bundle'];
-  return md5($field_name . ':' . $host_type . ':' . $host_bundle);
-}
-
+/**
+ * Attaches the back end paragraphs Ajax API behavior to a field instance.
+ *
+ * @param string $wrapper_id
+ *   The wrapper id for the form element.
+ * @param array &$element
+ *   The form element to attach to.
+ * @param array $context
+ *   The context argument provided by the hook_field_widget_form_alter
+ *   implementation.
+ */
 function paragraphs_extra_ajax_api_attach($wrapper_id, &$element, $context) {
+  $instance_id = _paragraphs_extra_ajax_api_instance_id($context);
+
   paragraphs_extra_ajax_api_attach_bundle_settings($element, $context);
   paragraphs_extra_ajax_api_attach_field_settings($element, $context);
   $field_name = $context['field']['field_name'];
-  $instance_id = _paragraphs_extra_ajax_api_instance_id($context);
 
   // Rewrite the prefix with more rich information about the field.
-  $element['#prefix'] = '<div ' .
-    'id="' . $wrapper_id . '" ' .
-    'class="' . _paragraphs_extra_class('ajax-api', 'field-instance') . '" ' .
-    _paragraphs_extra_data('ajax-api', 'field-name') . '="' . $field_name . '" ' .
-    _paragraphs_extra_data('ajax-api', 'instance-id') . '="' . $instance_id . '" ' .
-  '>';
+  $element['#prefix'] = '<div
+    id="' . $wrapper_id . '"
+    class="' . _paragraphs_extra_class('ajax-api', 'field-instance') . '"' .
+    _paragraphs_extra_data('ajax-api', 'field-name') . '="' . $field_name . '"' .
+    _paragraphs_extra_data('ajax-api', 'instance-id') . '="' . $instance_id . '"
+  >';
 
   // Iterate over the paragraph instances to attach metadata that the
   // front end API will use to talk to the form API.
   foreach ($element as $delta => &$item) {
     if (is_numeric($delta)) {
-      $item['#prefix'] = '<div ' .
-        'class="' . _paragraphs_extra_class('ajax-api', 'paragraphs-item') . '" ' .
+      $item['#prefix'] = '<div
+        class="' . _paragraphs_extra_class('ajax-api', 'paragraphs-item') . '" ' .
         _paragraphs_extra_data('ajax-api', 'owner') . '="' . $instance_id . '" ' .
         _paragraphs_extra_data('ajax-api', 'delta') . '="' . $item['#delta'] . '" ' .
         _paragraphs_extra_data('ajax-api', 'bundle') . '="' . $item['#bundle'] . '"' .
@@ -34,9 +43,9 @@ function paragraphs_extra_ajax_api_attach($wrapper_id, &$element, $context) {
       $item['#suffix'] = '</div>';
     }
   }
- 
+
   // Attach a button to trigger an ajax command to be sent.
-  $element['add_more']['paragraphs_extra_ajax_api_command_trigger'] = array(
+  $element['add_more']['paragraphs_extra']['ajax_api']['command_trigger'] = array(
     '#type' => 'submit',
     '#value' => t('Execute Paragraphs API'),
     '#weight' => 9999,
@@ -57,7 +66,7 @@ function paragraphs_extra_ajax_api_attach($wrapper_id, &$element, $context) {
   );
 
   // Attach a field for holding information passed over AJAX.
-  $element['add_more']['paragraphs_extra_ajax_api_command_data'] = array(
+  $element['add_more']['paragraphs_extra']['ajax_api']['command_data'] = array(
     '#type' => 'hidden',
     '#attributes' => array(
       'class' => array(
@@ -68,11 +77,22 @@ function paragraphs_extra_ajax_api_attach($wrapper_id, &$element, $context) {
   );
 }
 
+/**
+ * Applies ajax effects after an AJAX API triggered form rebuild.
+ *
+ * @param array $form
+ *   The affected form object.
+ * @param array &$form_state
+ *   The updated form state.
+ *
+ * @return array
+ *   The rebuilt widget form render array.
+ */
 function paragraphs_extra_ajax_api_handle_command_ajax($form, &$form_state) {
   $button = $form_state['triggering_element'];
 
   // Go one level up in the form, to the widgets container.
-  $element = drupal_array_get_nested_value($form, array_slice($button['#array_parents'], 0, -2));
+  $element = drupal_array_get_nested_value($form, array_slice($button['#array_parents'], 0, -4));
   $field_name = $element['#field_name'];
   $langcode = $element['#language'];
   $parents = $element['#field_parents'];
@@ -94,11 +114,19 @@ function paragraphs_extra_ajax_api_handle_command_ajax($form, &$form_state) {
   return $element;
 }
 
+/**
+ * Handles AJAX API commands from the client side.
+ *
+ * @param array $form
+ *   The affected form object.
+ * @param array &$form_state
+ *   The updated form state.
+ */
 function paragraphs_extra_ajax_api_handle_command_submit($form, &$form_state) {
-  $button = $form_state['triggering_element']; 
+  $button = $form_state['triggering_element'];
 
   // Go one level up in the form, to the widgets container.
-  $element = drupal_array_get_nested_value($form, array_slice($button['#array_parents'], 0, -2));
+  $element = drupal_array_get_nested_value($form, array_slice($button['#array_parents'], 0, -4));
   $field_name = $element['#field_name'];
   $langcode = $element['#language'];
   $parents = $element['#field_parents'];
@@ -109,8 +137,8 @@ function paragraphs_extra_ajax_api_handle_command_submit($form, &$form_state) {
   $state->delta = 0;
   $state->sorted = array();
   $state->element = $element;
-  $state->inputs = drupal_array_get_nested_value($form_state['input'], array_slice($button['#array_parents'], 0, -2));
-  $state->command = drupal_json_decode($state->inputs['add_more']['paragraphs_extra_ajax_api_command_data']);
+  $state->inputs = drupal_array_get_nested_value($form_state['input'], array_slice($button['#array_parents'], 0, -4));
+  $state->command = drupal_json_decode($state->inputs['add_more']['paragraphs_extra']['ajax_api']['command_data']);
   $state->langcode = $langcode;
   $state->field_name = $field_name;
   $state->form_state = $form_state;
@@ -122,10 +150,16 @@ function paragraphs_extra_ajax_api_handle_command_submit($form, &$form_state) {
   // Commit the changes to the field and form states, and instruct the form API
   // to rebuild the form.
   field_form_set_state($parents, $field_name, $langcode, $form_state, $state->field_state);
-  drupal_array_set_nested_value($form_state['input'], array_slice($button['#array_parents'], 0, -2), $state->inputs);
+  drupal_array_set_nested_value($form_state['input'], array_slice($button['#array_parents'], 0, -4), $state->inputs);
   $form_state['rebuild'] = TRUE;
 }
 
+/**
+ * Executes an AJAX command using a state object.
+ *
+ * @param object $state
+ *   An object representing the current rebuild state.
+ */
 function paragraphs_extra_ajax_api_execute_command($state) {
 
   // All items that occur up to the command delta should remain as is.
@@ -159,12 +193,36 @@ function paragraphs_extra_ajax_api_execute_command($state) {
   }
 }
 
+/**
+ * Gets the next available delta in the array of rebuilt items.
+ *
+ * @param object $state
+ *   The current rebuild state.
+ *
+ * @return int
+ *   The next available delta in the rebuild array.
+ */
+function paragraphs_extra_ajax_api_next_delta($state) {
+  while (isset($state->sorted[$state->delta])) {
+    $state->delta++;
+  }
+  return $state->delta;
+}
+
+/**
+ * Applies an insert command to the paragraph form.
+ *
+ * @param object $state
+ *   The current rebuild state.
+ * @param string $insert
+ *   The command array index key to pull the new paragraph information from.
+ */
 function paragraphs_extra_ajax_api_insert_new_paragraphs($state, $insert) {
   $new_paragraphs = $state->command[$insert];
   $state->field_state['items_count'] += count($new_paragraphs);
   foreach ($new_paragraphs as $new_paragraph) {
     if (isset($new_paragraph['bundle'])) {
-      $new_delta = $state->delta++;
+      $new_delta = paragraphs_extra_ajax_api_next_delta($state);
       $state->sorted[$new_delta] = array(
         'entity' => paragraphs_extra_ajax_api_create_paragraph_item($new_paragraph['bundle'], $state->field_name),
         'input' => array(),
@@ -177,46 +235,81 @@ function paragraphs_extra_ajax_api_insert_new_paragraphs($state, $insert) {
   }
 }
 
+/**
+ * Creates a new paragraph item entity for the widget form.
+ *
+ * @param string $bundle
+ *   The paragraph item bundle to create.
+ * @param string $field_name
+ *   The name of the field the item belongs to.
+ *
+ * @return object
+ *   A newly crated paragraphs_item entity.
+ */
 function paragraphs_extra_ajax_api_create_paragraph_item($bundle, $field_name) {
-  $paragraph_item = entity_create('paragraphs_item', array('bundle' => $bundle, 'field_name' => $state->field_name));
+  $paragraph_item = entity_create('paragraphs_item', array('bundle' => $bundle, 'field_name' => $field_name));
   $paragraph_item->being_edited = TRUE;
   return $paragraph_item;
 }
 
+/**
+ * Copies a paragraph from the current for to the newly rebuilt array.
+ *
+ * @param object $state
+ *   The current rebuild state.
+ * @param int $from
+ *   The index to start copying from.
+ * @param int $to
+ *   The index to stop copying from.
+ */
 function paragraphs_extra_ajax_api_copy_paragraphs($state, $from, $to) {
   for ($i = $from; $i <= $to; $i++) {
-    $state->sorted[$state->delta++] = array(
+    $delta = paragraphs_extra_ajax_api_next_delta($state);
+    $state->sorted[$delta] = array(
       'entity' => $state->field_state['entity'][$i],
       'input' => isset($state->inputs[$i]) ? $state->inputs[$i] : array(),
     );
   }
 }
 
+/**
+ * Copies over the delta being operated on to the rebuild form.
+ *
+ * This function can also replace the existing paragraphs item value with a new
+ * set of values if the replace option is set on the form state.
+ *
+ * @param object $state
+ *   The current rebuild state.
+ */
 function paragraphs_extra_ajax_api_update_paragraph($state) {
-  $replace_delta = $state->delta++;
-  $state->sorted[$replace_delta] = array(
-    'entity' => $state->field_state['entity'][$state->command['delta']],
-    'input' => array(),
-  );
-
   $replace = isset($state->command['replace']) ? $state->command['replace'] : array();
-  if ($replace) {
-    if (isset($replace['values'])) {
-      paragraphs_extra_ajax_api_apply_values($state, $replace_delta, $replace['values']);
-      $state->sorted[$replace_delta]['command'] = 'replace';
+
+  if ($replace || isset($state->field_state['entity'][$state->command['delta']])) {
+    $replace_delta = paragraphs_extra_ajax_api_next_delta($state);
+
+    $state->sorted[$replace_delta] = array(
+      'entity' => $state->field_state['entity'][$state->command['delta']],
+      'input' => array(),
+    );
+
+    if ($replace) {
+      if (isset($replace['values'])) {
+        paragraphs_extra_ajax_api_apply_values($state, $replace_delta, $replace['values']);
+        $state->sorted[$replace_delta]['command'] = 'replace';
+      }
     }
   }
 }
 
 /**
- * values = {
- *  field_name: {
- *    0: {
- *      subkey1: 'blah blah blah',
- *      subkey2: 'blah blah blah',
- *    }
- *  },
- * }
+ * Applies an array of field values sent via an AJAX command to a state object.
+ *
+ * @param object $state
+ *   The state object to apply the values to.
+ * @param int $delta
+ *   The delta to apply the values to.
+ * @param array $values
+ *   The values to be applied.
  */
 function paragraphs_extra_ajax_api_apply_values($state, $delta, $values) {
   foreach ($values as $field_name => $field_deltas) {
@@ -228,10 +321,18 @@ function paragraphs_extra_ajax_api_apply_values($state, $delta, $values) {
   }
 }
 
+/**
+ * Exposes the paragraphs bundle settings for a field instance to the AJAX API.
+ *
+ * @param array &$element
+ *   The form element to attach the javascript variable to.
+ * @param array $context
+ *   The context array for the provided form element.
+ */
 function paragraphs_extra_ajax_api_attach_bundle_settings(&$element, $context) {
   // Convert the default paragraph bundle settings object into an array  and
   // add a description so we can serialize it into a Drupal.settings object
-  // to provide to javascript-land. 
+  // to provide to javascript-land.
   $available_bundles = paragraphs_bundle_load();
   foreach ($available_bundles as $bundle => $info) {
     $settings = unserialize(variable_get('paragraphs_split_bundle_settings_' . $bundle, serialize(array('ckeditor_description' => ''))));
@@ -289,7 +390,7 @@ function paragraphs_extra_ajax_api_attach_bundle_settings(&$element, $context) {
     elseif (isset($context['instance']['settings']['allowed_bundles']['bundle_weights'][$machine_name])) {
       $select_bundles[$machine_name] = $context['instance']['settings']['allowed_bundles']['bundle_weights'][$machine_name];
     }
-    $weight++;
+    ++$weight;
   }
 
   $instance_id = _paragraphs_extra_ajax_api_instance_id($context);
@@ -309,6 +410,14 @@ function paragraphs_extra_ajax_api_attach_bundle_settings(&$element, $context) {
   );
 }
 
+/**
+ * Exposes the settings for a field  field instance to the AJAX API.
+ *
+ * @param array &$element
+ *   The form element to attach the settings to.
+ * @param array $context
+ *   The context array for the form element.
+ */
 function paragraphs_extra_ajax_api_attach_field_settings(&$element, $context) {
   if (isset($context['instance']) && isset($context['instance']['settings'])) {
     $field_name = $context['field']['field_name'];
@@ -332,8 +441,29 @@ function paragraphs_extra_ajax_api_attach_field_settings(&$element, $context) {
 
 /**
  * Applies transition effects to newly added paragraph items.
+ *
+ * @param array $form
+ *   The form being updated.
+ * @param array &$form_state
+ *   The form state for the form being updated.
+ *
+ * @return array
+ *   The rebuilt paragraphs field widget render array.
  */
 function paragraphs_extra_ajax_api_command_ajax($form, &$form_state) {
   paragraphs_extra_include('ajax_api');
   return paragraphs_extra_ajax_api_handle_command_ajax($form, $form_state);
+}
+
+/**
+ * Provides a unique key for a field instance.
+ *
+ * @param array $context
+ *   The context array for the form widget.
+ */
+function _paragraphs_extra_ajax_api_instance_id($context) {
+  $field_name = $context['field']['field_name'];
+  $host_type = $context['instance']['entity_type'];
+  $host_bundle = $context['instance']['bundle'];
+  return md5($field_name . ':' . $host_type . ':' . $host_bundle);
 }

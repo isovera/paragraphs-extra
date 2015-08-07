@@ -1,15 +1,21 @@
 /**
  * @file
- *
- * A CKEDITOR Plugin for integrating with the paragraphs module.
+ * Contains a helper object for dealing with ckeditor fields.
  */
 
 function ParagraphsCkeditorData(editor) {
   var $ = jQuery;
 
   this.$editor = $(editor.element.$);
-  this.$paragraph = Drupal.ParagraphsExtra.lookup('ajax-api', 'paragraphs-item', this.$editor, 'closest');
-  this.$ckeditor_field = this.$editor.closest('.paragraphs-ckeditor-field');
+
+  if (Drupal.ParagraphsExtra) {
+    this.$paragraph = Drupal.ParagraphsExtra.lookup('ajax-api', 'paragraphs-item', this.$editor, 'closest');
+    this.$ckeditor_field = this.$editor.closest('.paragraphs-ckeditor-field');
+  }
+  else {
+    this.$paragraph = null;
+    this.$ckeditor_field = null;
+  }
 
   if (this.$paragraph) {
     this.paragraphs_instance = Drupal.ParagraphsExtra.Api.getFieldInstance(Drupal.ParagraphsExtra.readData(this.$paragraph, 'ajax-api', 'owner'));

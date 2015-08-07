@@ -1,10 +1,23 @@
 <?php
+/**
+ * @file
+ * Install hooks for the paragraphs_extra module.
+ */
 
+/**
+ * Implements hook_schema().
+ */
 function paragraphs_extra_schema() {
   $schema = array();
   $schema['paragraphs_extra_bundle_info'] = array(
     'description' => 'A table for attaching extra bundle data',
     'fields' => array(
+      'id' => array(
+        'description' => 'The numeric id of the bundle.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
       'bundle' => array(
         'description' => 'The bundle machine name key.',
         'type' => 'varchar',
@@ -24,7 +37,13 @@ function paragraphs_extra_schema() {
         'not null' => FALSE,
       ),
     ),
-    'primary key' => array('bundle'),
+    'primary key' => array('id', 'bundle'),
   );
   return $schema;
+}
+
+/**
+ * Implements hook_enable().
+ */
+function paragraphs_extra_enable() {
 }

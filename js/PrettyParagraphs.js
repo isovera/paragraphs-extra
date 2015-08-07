@@ -60,16 +60,18 @@
       Drupal.ParagraphsExtra.lookup('pretty-paragraphs', 'delete-button', paragraph.$container).hide();
 
       // Add event handlers for the paragraph row.
-      paragraph.$container.click(function(e) { plugin._onRowClick(paragraph, e); })
-        .hover(function(e) { 
-          e.preventDefault();
-          plugin._onRowHover(paragraph, e); 
+      paragraph.$container
+        .click(function(e) {
+          e.stopPropagation();
+          plugin._onRowClick(paragraph, e);
         })
+        .hover(function(e) { plugin._onRowHover(paragraph, e); })
         .mouseleave(function(e) { plugin._onMouseLeave(paragraph, e); });
 
       // Add event handlers for delete button.
       Drupal.ParagraphsExtra.lookup('pretty-paragraphs', 'button--delete', paragraph.$container)
         .click(function (e) {
+          e.stopPropagation();
           e.preventDefault();
           Drupal.ParagraphsExtra.lookup('pretty-paragraphs', 'delete-button', paragraph.$container).mousedown();
         })
@@ -78,12 +80,10 @@
 
       // Add event handlers for swap buttons.
       Drupal.ParagraphsExtra.lookup('pretty-paragraphs', 'button--switch', paragraph.$container)
-        .click(function (e) {
-          e.preventDefault();
-        });
+        .click(function (e) { e.preventDefault(); });
 
       // Support the insert plugin.
-      Drupal.ParagraphsExtra.lookup('pretty-paragraphs', 'button--add', paragraph.$container)
+      Drupal.ParagraphsExtra.lookup('pretty-paragraphs', 'button--insert', paragraph.$container)
         .hover(function(e) { plugin._onMouseLeave(paragraph, e); })
         .mouseleave(function(e) { plugin._onRowHover(paragraph, e); });
     };
@@ -239,7 +239,7 @@
         this.collapse(paragraph, showEffect, hideEffect);
       }
     }
-    
+
     /**
      * An internal event handler for handling clicks anywhere on the paragraphs
      * row.
@@ -314,8 +314,16 @@
     this._isRowLabelClick = function(paragraph, e) {
       var $elmt = $(e.target);
       var rtn = false;
+      var tagName = '';
 
-      if ($elmt.attr('tagName').toLowerCase() == 'label') {
+      if (typeof $elmt.prop === 'function') {
+        tagName = $elmt.prop('tagName');
+      }
+      else {
+        tagName = $elmt.attr('tagName');
+      }
+
+      if (tagName.toLowerCase() == 'label') {
         if ($elmt.parent().hasClass('form-item')) {
           rtn = true;
         }
@@ -343,7 +351,7 @@
      *  The paragraph where the user was hovering.
      */
     this._onMouseLeave = function(paragraph, e) {
-   
+
       // Remove hover styling.
       paragraph.$container.removeClass(Drupal.ParagraphsExtra.className('pretty-paragraphs', 'hover'));
     }

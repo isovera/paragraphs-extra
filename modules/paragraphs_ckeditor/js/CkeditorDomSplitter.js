@@ -1,9 +1,10 @@
 /**
  * @file
+ * Provides an object for splitting a CKEditor DOM tree at a given text node.
  */
 
 /**
- * Provided an object for splitting a CKEditor DOM tree at a given text node.
+ * An object for partitioning a CKEDITOR DOM tree.
  */
 function CkeditorDomSplitter($ckeditor_field) {
 

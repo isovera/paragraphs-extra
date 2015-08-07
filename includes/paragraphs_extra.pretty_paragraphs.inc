@@ -8,11 +8,11 @@
  * Attaches 'Pretty Paragraphs' UX behaviors to the paragraphs field widget.
  *
  * @param string $wrapper_id
- *  The form id of the field container.
+ *   The form id of the field container.
  * @param array &$element
- *  A reference to the form element to attach to.
+ *   A reference to the form element to attach to.
  * @param array &$form_state
- *  The form api form state for the widget's form.
+ *   The form api form state for the widget's form.
  */
 function paragraphs_extra_pretty_paragraphs_attach($wrapper_id, &$element, &$form_state, $context) {
   $element['#attached']['js'][] = drupal_get_path('module', 'paragraphs_extra') . '/js/PrettyParagraphs.js';
@@ -39,10 +39,10 @@ function paragraphs_extra_pretty_paragraphs_attach($wrapper_id, &$element, &$for
       );
 
       // Decorate built-in paragraphs buttons so we can find them in javascript.
-      $element[$delta]['actions']['remove_button']['#attributes']['class'][] =
-        _paragraphs_extra_class('pretty-paragraphs', 'delete-button');
-      $element[$delta]['actions']['confirm_delete_button']['#attributes']['class'][] =
-        _paragraphs_extra_class('pretty-paragraphs', 'confirm-delete-button');
+      $element[$delta]['actions']['remove_button']['#attributes']['class'][]
+        = _paragraphs_extra_class('pretty-paragraphs', 'delete-button');
+      $element[$delta]['actions']['confirm_delete_button']['#attributes']['class'][]
+        = _paragraphs_extra_class('pretty-paragraphs', 'confirm-delete-button');
 
       // Add the beautified admin buttons for the paragraph.
       if ($settings['click_to_edit']) {
@@ -56,16 +56,19 @@ function paragraphs_extra_pretty_paragraphs_attach($wrapper_id, &$element, &$for
     }
   }
 
-  paragraphs_extra_pretty_paragraphs_attach_add_button($element, $context);
+  // Switches to a modal-based "Add Paragraph" bundle selection UI.
+  if ($settings['modal_select']) {
+    paragraphs_extra_pretty_paragraphs_attach_add_button($element, $context);
+  }
 }
 
 /**
  * Creates a toolbar with an 'edit' and 'delete' button.
  *
  * @param array &$element
- *  The paragraph item for mto attach to.
- * @param string viewmode
- *  The view mode to render previews in.
+ *   The paragraph item for mto attach to.
+ * @param string $viewmode
+ *   The view mode to render previews in.
  */
 function paragraphs_extra_pretty_paragraphs_attach_edit_toolbar(&$element, $viewmode) {
   $element['paragraph_bundle_title']['#attributes']['class'][] = 'element-invisible';
@@ -79,15 +82,17 @@ function paragraphs_extra_pretty_paragraphs_attach_edit_toolbar(&$element, $view
 
   // Load SVG icons for the admin interface.
   $icon_pack = drupal_get_path('module', 'paragraphs_extra') . '/images/pretty_paragraphs_icons.svg';
-  $switch_icons = '<svg class="' . $icon_class . ' ' . $icon_class . '--edit">'.
-      '<use xlink:href="/' . $icon_pack . '#edit"></use>'.
-    '</svg>' .
-    '<svg class="' . $icon_class . ' ' . $icon_class . '--collapse">'.
-      '<use xlink:href="/' . $icon_pack . '#collapse"></use>'.
-    '</svg>';
-  $delete_icon = '<svg class="' . $icon_class . ' ' . $icon_class . '--delete">'.
-      '<use xlink:href="/' . $icon_pack . '#delete"></use>'.
-    '</svg>';
+
+  $switch_icons = '<svg class="' . $icon_class . ' ' . $icon_class . '--edit">';
+  $switch_icons .= '<use xlink:href="/' . $icon_pack . '#edit"></use>';
+  $switch_icons .= '</svg>';
+  $switch_icons .= '<svg class="' . $icon_class . ' ' . $icon_class . '--collapse">';
+  $switch_icons .= '<use xlink:href="/' . $icon_pack . '#collapse"></use>';
+  $switch_icons .= '</svg>';
+
+  $delete_icon = '<svg class="' . $icon_class . ' ' . $icon_class . '--delete">';
+  $delete_icon .= '<use xlink:href="/' . $icon_pack . '#delete"></use>';
+  $delete_icon .= '</svg>';
 
   $new_element = array(
     '#type' => 'container',
@@ -154,9 +159,9 @@ function paragraphs_extra_pretty_paragraphs_attach_edit_toolbar(&$element, $view
  * Attaches a rendered preview section to a paragraph item form.
  *
  * @param array &$element
- *  The paragraph item element to attach to.
+ *   The paragraph item element to attach to.
  * @param string $viewmode
- *  The viewmode to attach the preview in.
+ *   The viewmode to attach the preview in.
  */
 function paragraphs_extra_pretty_paragraphs_attach_preview(&$element, $viewmode) {
   $new_element = array(
@@ -209,22 +214,23 @@ function paragraphs_extra_pretty_paragraphs_attach_preview(&$element, $viewmode)
 }
 
 /**
- * Attaches a toolbar for changing the preview view mode to a paragraph field
- * widget.
+ * Attaches a toolbar for changing the preview view mode to a field widget.
  *
  * @param string $wrapper_id
- *  The wdget form wrapper id.
+ *   The wdget form wrapper id.
  * @param array &$element
- *  The paragraph field form to attach to.
+ *   The paragraph field form to attach to.
  * @param array $form_state
- *  The form_state for the widget form to pull the current viewmode selection
- *  from.
+ *   The form_state for the widget form to pull the current viewmode selection
+ *   from.
+ *
  * @return string
- *  The system name of the currently selected viewmode.
+ *   The system name of the currently selected viewmode.
  */
 function paragraphs_extra_pretty_paragraphs_attach_viewmode_toolbar($wrapper_id, &$element, $form_state) {
   if (isset($form_state['paragraphs_extra']['pretty_paragraphs']['viewmode'])) {
     $viewmode = $form_state['paragraphs_extra']['pretty_paragraphs']['viewmode'];
+    unset($form_state['paragraphs_extra']['pretty_paragraphs']['viewmode']);
   }
   else {
     $viewmode = 'paragraphs_editor_preview';
@@ -246,18 +252,20 @@ function paragraphs_extra_pretty_paragraphs_attach_viewmode_toolbar($wrapper_id,
     ),
   );
 
-  $icon_class = _paragraphs_extra_class('pretty-paragraphs', 'icon');
+  $icon_classes = _paragraphs_extra_class('pretty-paragraphs', 'icon');
+  $icon_classes .= ' ' . $icon_classes;
   $button_class = _paragraphs_extra_class('pretty-paragraphs', 'button');
 
   // Load SVG icons for the admin interface.
   $icon_pack = drupal_get_path('module', 'paragraphs_extra') . '/images/pretty_paragraphs_icons.svg';
 
-  $full_icon = '<svg class="' . $icon_class . ' ' .  $icon_class . '--full">' .
-      '<use xlink:href="/' . $icon_pack . '#full"></use>'.
-    '</svg>';
-  $condensed_icon = '<svg class="' . $icon_class . ' ' . $icon_class . '--condensed">' .
-      '<use xlink:href="/' . $icon_pack . '#condensed"></use>'.
-    '</svg>';
+  $full_icon = '<svg class="' . $icon_classes . '--full">';
+  $full_icon .= '<use xlink:href="/' . $icon_pack . '#full"></use>';
+  $full_icon .= '</svg>';
+
+  $condensed_icon = '<svg class="' . $icon_classes . '--condensed">';
+  $condensed_icon .= '<use xlink:href="/' . $icon_pack . '#condensed"></use>';
+  $condensed_icon .= '</svg>';
 
   $new_element['viewmode_toolbar']['label'] = array(
     '#markup' => '<strong>' . t('Preview Mode') . '</strong>',
@@ -337,18 +345,18 @@ function paragraphs_extra_pretty_paragraphs_attach_viewmode_toolbar($wrapper_id,
 }
 
 /**
- * Attaches a toolbar to a paragraph item so that users can insert new
- * paragraphs in between other paragraph items.
+ * Attaches a paragraph insertion toolbar to a paragraph item.
  *
- * @param string $wrapper_id
- *  The wdget form wrapper id.
+ * @param string &$element
+ *   The form element to attach to.
+ * @param array $context
+ *   The form element context array.
  */
 function paragraphs_extra_pretty_paragraphs_attach_insert_toolbar(&$element, $context) {
   $new_element = array(
     '#type' => 'container',
     '#attributes' => array(
       'class' => array(
-        //'element-invisible',
         _paragraphs_extra_class('pretty-paragraphs', 'insert-toolbar'),
       ),
     ),
@@ -359,9 +367,10 @@ function paragraphs_extra_pretty_paragraphs_attach_insert_toolbar(&$element, $co
 
   // Load SVG icons for the admin interface.
   $icon_pack = drupal_get_path('module', 'paragraphs_extra') . '/images/pretty_paragraphs_icons.svg';
-  $add_icon = '<svg class="' . $icon_class . ' ' . $icon_class . '--add">'.
-      '<use xlink:href="/' . $icon_pack . '#add"></use>'.
-    '</svg>';
+
+  $add_icon = '<svg class="' . $icon_class . ' ' . $icon_class . '--add">';
+  $add_icon .= '<use xlink:href="/' . $icon_pack . '#add"></use>';
+  $add_icon .= '</svg>';
 
   $new_element['add'] = array(
     '#type' => 'link',
@@ -384,18 +393,35 @@ function paragraphs_extra_pretty_paragraphs_attach_insert_toolbar(&$element, $co
   $element['actions']['paragraphs_extra']['pretty_paragraphs']['insert_toolbar'] = $new_element;
 }
 
+/**
+ * Replaces the default add mechanism with a beautified button.
+ *
+ * @param array &$element
+ *   The form element to attach the button to.
+ * @param array $context
+ *   The widget form context argument.
+ */
 function paragraphs_extra_pretty_paragraphs_attach_add_button(&$element, $context) {
   $element['add_more']['type']['#access'] = FALSE;
   $element['add_more']['add_more']['#access'] = FALSE;
+
+  foreach (element_children($element['add_more']) as $key) {
+    if (isset($element['add_more'][$key]['#attributes']['class'])) {
+      if (in_array('paragraphs-add-more-submit', $element['add_more'][$key]['#attributes']['class'])) {
+        $element['add_more'][$key]['#access'] = FALSE;
+      }
+    }
+  }
 
   $icon_class = _paragraphs_extra_class('pretty-paragraphs', 'icon');
   $button_class = _paragraphs_extra_class('pretty-paragraphs', 'button');
 
   // Load SVG icons for the admin interface.
   $icon_pack = drupal_get_path('module', 'paragraphs_extra') . '/images/pretty_paragraphs_icons.svg';
-  $add_icon = '<svg class="' . $icon_class . ' ' . $icon_class . '--add">'.
-      '<use xlink:href="/' . $icon_pack . '#add"></use>'.
-    '</svg>';
+
+  $add_icon = '<svg class="' . $icon_class . ' ' . $icon_class . '--add">';
+  $add_icon .= '<use xlink:href="/' . $icon_pack . '#add"></use>';
+  $add_icon .= '</svg>';
 
   $new_element = array(
     '#type' => 'link',
@@ -419,16 +445,15 @@ function paragraphs_extra_pretty_paragraphs_attach_add_button(&$element, $contex
 }
 
 /**
- * Refreshes the teaser for a paragraph item in the widget form with the
- * currently selected view mode.
+ * Refreshes the teaser for a paragraph item in the widget form.
  *
  * @param array $form
- *  The form the preview belongs to.
+ *   The form the preview belongs to.
  * @param array &$form_state
- *  The form_state for the form the preview belongs to.
+ *   The form_state for the form the preview belongs to.
  */
 function paragraphs_extra_pretty_paragraphs_preview_ajax($form, &$form_state) {
-  $button = $form_state['triggering_element']; 
+  $button = $form_state['triggering_element'];
   $delta = $button['#delta'];
 
   // Get information about the entity being refreshed.
@@ -441,8 +466,15 @@ function paragraphs_extra_pretty_paragraphs_preview_ajax($form, &$form_state) {
   $field_state = field_form_get_state($parents, $field_name, $langcode, $form_state);
   $paragraph_item = $field_state['entity'][$delta];
 
+  $values = drupal_array_get_nested_value($form_state['input'], array_slice($button['#array_parents'], 0, -5));
+  if (isset($values['add_more']['paragraphs_extra']['pretty_paragraphs']['viewmode_toolbar']['viewmode'])) {
+    $viewmode = $values['add_more']['paragraphs_extra']['pretty_paragraphs']['viewmode_toolbar']['viewmode'];
+  }
+  else {
+    $viewmode = 'paragraphs_editor_preview';
+  }
+
   // Rebuild the preview.
-  $viewmode = 'paragraphs_editor_preview';
   $preview = $paragraph_item->view($viewmode);
   $element['paragraphs_extra']['pretty_paragraphs']['paragraph_preview']['preview'] = $preview;
 
@@ -450,16 +482,15 @@ function paragraphs_extra_pretty_paragraphs_preview_ajax($form, &$form_state) {
 }
 
 /**
- * Handles 'reload' submissions by causing the entire form to be rebuilt with
- * the updated viewmode. 
+ * Handles 'reload' submissions by forcing a form rebuild with updated viewmode.
  *
  * @param array $form
- *  The form to be rebuilt.
+ *   The form to be rebuilt.
  * @param array &$form_state
- *  The form_state for the form to be rebuilt.
+ *   The form_state for the form to be rebuilt.
  */
 function paragraphs_extra_pretty_paragraphs_handle_reload_submit($form, &$form_state) {
-  $button = $form_state['triggering_element']; 
+  $button = $form_state['triggering_element'];
   $values = drupal_array_get_nested_value($form_state['input'], array_slice($button['#array_parents'], 0, -1));
   if (isset($values['viewmode'])) {
     $form_state['paragraphs_extra']['pretty_paragraphs']['viewmode'] = $values['viewmode'];
@@ -471,33 +502,54 @@ function paragraphs_extra_pretty_paragraphs_handle_reload_submit($form, &$form_s
  * Delivers an the updated paragraph field widget form after a form rebuild.
  *
  * @param array $form
- *  The form containing the paragraphs field.
+ *   The form containing the paragraphs field.
  * @param array &$form_state
- *  The form_state for the form containing the paragraphs field.
+ *   The form_state for the form containing the paragraphs field.
  */
 function paragraphs_extra_pretty_paragraphs_reload_ajax($form, &$form_state) {
-  $button = $form_state['triggering_element']; 
+  $button = $form_state['triggering_element'];
   return drupal_array_get_nested_value($form, array_slice($button['#array_parents'], 0, -5));
 }
 
 /**
- * Loads the 'Pretty Paragraphs' settings for a field instance from the
- * database.
+ * Loads the Pretty Paragraphs settings for a field instance from the database.
  *
  * @param array $instance
- *  The field instance to load the settings for.
+ *   The field instance to load the settings for.
  *
  * @return array
- *  An array with key value pairs representing 'Pretty Paragraphs' settings.
+ *   An array with key value pairs representing 'Pretty Paragraphs' settings.
  */
 function paragraphs_extra_pretty_paragraphs_load_instance_settings($instance) {
   $settings_registry = _paragraphs_extra_vget('pretty_paragraphs_instance', array());
   $key = _paragraphs_extra_pretty_paragraphs_instance_settings_key($instance);
   $settings = isset($settings_registry[$key]) ? $settings_registry[$key] : array();
 
-  $required_keys = array('click_to_edit', 'preview_modes', 'insert_between');
-  foreach ($required_keys as $key) {
-    if (!isset($settings[$key])) {
+  $required_keys = array(
+    'click_to_edit',
+    'modal_select',
+    'preview_modes',
+    'insert_between',
+  );
+
+  if ($instance['settings']['default_edit_mode'] == 'open') {
+
+    foreach ($required_keys as $key) {
+      if (!isset($settings[$key])) {
+        $settings[$key] = NULL;
+      }
+    }
+
+    if (!$settings['modal_select']) {
+      $settings['insert_between'] = FALSE;
+    }
+
+    if (!$settings['click_to_edit']) {
+      $settings['preview_modes'] = FALSE;
+    }
+  }
+  else {
+    foreach ($required_keys as $key) {
       $settings[$key] = NULL;
     }
   }
@@ -509,15 +561,11 @@ function paragraphs_extra_pretty_paragraphs_load_instance_settings($instance) {
  * Saves the 'Pretty Paragraphs' settings for a field instance to the database.
  *
  * @param array $instance
- *  The field instance to save the settings for.
+ *   The field instance to save the settings for.
  * @param array $settings
- *  The field instance settings to save.
+ *   The field instance settings to save.
  */
 function paragraphs_extra_pretty_paragraphs_save_instance_settings($instance, $settings) {
-  if (!$settings['click_to_edit']) {
-    $settings['preview_modes'] = FALSE;
-  }
-
   $settings_registry = _paragraphs_extra_vget('pretty_paragraphs_instance', array());
   $key = _paragraphs_extra_pretty_paragraphs_instance_settings_key($instance);
   $settings_registry[$key] = $settings;
@@ -525,13 +573,12 @@ function paragraphs_extra_pretty_paragraphs_save_instance_settings($instance, $s
 }
 
 /**
- * Attaches the 'Pretty Paragraphs' settings form elements to a paragraph field
- * instance settings form.
+ * Attaches the Pretty Paragraphs settings to a field instance settings form.
  *
  * @param array &$form
- *  The field instance settings form.
+ *   The field instance settings form.
  * @param array &$form_state
- *  The form_state for the field instance settings form.
+ *   The form_state for the field instance settings form.
  */
 function paragraphs_extra_pretty_paragraphs_attach_instance_settings(&$form, &$form_state) {
   $settings = paragraphs_extra_pretty_paragraphs_load_instance_settings($form_state['build_info']['args'][0]);
@@ -564,7 +611,21 @@ function paragraphs_extra_pretty_paragraphs_attach_instance_settings(&$form, &$f
       '#default_value' => $settings['preview_modes'],
       '#states' => array(
         'visible' => array(
-          '#' . $wrapper_id . ' .click-to-edit'  => array('checked' => true),
+          '#' . $wrapper_id . ' .click-to-edit'  => array('checked' => TRUE),
+          '#edit-instance-settings-default-edit-mode' => array('value' => 'open'),
+        ),
+      ),
+    ),
+    'modal_select' => array(
+      '#type' => 'checkbox',
+      '#title' => t('Modal Select'),
+      '#description' => t('Replaces the default insert methods with a views-based selection modal.'),
+      '#default_value' => $settings['modal_select'],
+      '#attributes' => array(
+        'class' => array('modal-select'),
+      ),
+      '#states' => array(
+        'visible' => array(
           '#edit-instance-settings-default-edit-mode' => array('value' => 'open'),
         ),
       ),
@@ -574,11 +635,9 @@ function paragraphs_extra_pretty_paragraphs_attach_instance_settings(&$form, &$f
       '#title' => t('Insert Between'),
       '#description' => t('Puts an insert button between sections.'),
       '#default_value' => $settings['insert_between'],
-      '#attributes' => array(
-        'class' => array('click-to-edit'),
-      ),
       '#states' => array(
         'visible' => array(
+          '#' . $wrapper_id . ' .modal-select'  => array('checked' => TRUE),
           '#edit-instance-settings-default-edit-mode' => array('value' => 'open'),
         ),
       ),
@@ -591,13 +650,14 @@ function paragraphs_extra_pretty_paragraphs_attach_instance_settings(&$form, &$f
  * Submit handler for the field instance settings form.
  *
  * @param array &$form
- *  The field instance settings form.
+ *   The field instance settings form.
  * @param array &$form_state
- *  The form_state for the field instance settings form.
+ *   The form_state for the field instance settings form.
  */
 function paragraphs_extra_pretty_paragraphs_handle_instance_settings_submit(&$form, &$form_state) {
   $settings = paragraphs_extra_pretty_paragraphs_load_instance_settings($form_state['build_info']['args'][0]);
   $values = $form_state['values']['instance']['settings']['paragraphs_extra']['pretty_paragraphs'];
+
   foreach ($settings as $key => $value) {
     if (isset($values[$key])) {
       if ($form_state['values']['instance']['settings']['default_edit_mode'] == 'open') {
@@ -617,10 +677,10 @@ function paragraphs_extra_pretty_paragraphs_handle_instance_settings_submit(&$fo
  * Creates a unique 'Pretty Paragraphs' settings key for a field instance.
  *
  * @param array $instance
- *  The field instance to generate the key for.
+ *   The field instance to generate the key for.
  *
  * @return string
- *  A unique settings key associated with a paragraphs field instance.
+ *   A unique settings key associated with a paragraphs field instance.
  */
 function _paragraphs_extra_pretty_paragraphs_instance_settings_key($instance) {
   return $instance['field_name'] . '_' . $instance['entity_type'] . '_' . $instance['bundle'];

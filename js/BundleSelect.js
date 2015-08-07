@@ -27,7 +27,7 @@
 
   Drupal.behaviors.ParagraphsExtraBundleSelector = {
     attach: function (context, settings) {
-      $('#modal-content .paragraphs-extra-bundle-option', context).once().hover(function(e) {
+      $('.paragraphs-extra-bundle-option', context).once().hover(function(e) {
         $(this).addClass('paragraphs-extra-bundle-option--hover');
       })
       .mouseleave(function(e) {
