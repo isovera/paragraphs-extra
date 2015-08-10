@@ -6,7 +6,7 @@
 /**
  * An object for partitioning a CKEDITOR DOM tree.
  */
-function CkeditorDomSplitter($ckeditor_field) {
+var CkeditorDomSplitter = function ($ckeditor_field) {
 
   /**
    * Partitions a CKEDITOR dom tree based on a selection range.
@@ -94,7 +94,7 @@ function CkeditorDomSplitter($ckeditor_field) {
     return partitioned;
   }
 
-  function createTextValue(value) {
+  var createTextValue = function (value) {
     var values = {};
     values[$ckeditor_field.attr('data-paragraphs-ckeditor-field')] = {
       0: {
@@ -112,7 +112,7 @@ function CkeditorDomSplitter($ckeditor_field) {
    * @param offset
    * @return
    */
-  function splitText(element, offset) {
+  var splitText = function (element, offset) {
     var left = element.clone(false);
     var right = element.clone(false);
     var source = element.getText();
@@ -138,7 +138,7 @@ function CkeditorDomSplitter($ckeditor_field) {
    * @param element
    * @return
    */
-  function isNodeEmpty(element) {
+  var isNodeEmpty = function (element) {
     var empty = true;
     if (typeof element !== 'undefined') {
       if (element.type === CKEDITOR.NODE_TEXT || element.getChildCount()) {
@@ -154,7 +154,7 @@ function CkeditorDomSplitter($ckeditor_field) {
    * @param list
    * @param element
    */
-  function pushNodeElement(list, element) {
+  var pushNodeElement = function (list, element) {
     if (!isNodeEmpty(element)) {
       list.push(element);
     }
@@ -166,7 +166,7 @@ function CkeditorDomSplitter($ckeditor_field) {
    * @param root
    * @return
    */
-  function readTree(root) {
+  var readTree = function (root) {
     var html = '';
     if (root) {
       var body_list = root.getElementsByTag('body');
@@ -184,7 +184,7 @@ function CkeditorDomSplitter($ckeditor_field) {
    * @param element
    * @return
    */
-  function getPivot(element) {
+  var getPivot = function (element) {
     if (element.type == CKEDITOR.NODE_TEXT) {
       return element;
     }

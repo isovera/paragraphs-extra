@@ -7,7 +7,7 @@
 ( function($) {
   "use strict";
 
-  function showBundleSelectModal(editor) {
+  var showBundleSelectModal = function (editor) {
 
     // Populate local helper variables
     var data = new ParagraphsCkeditorData(editor);

@@ -1,3 +1,8 @@
+/**
+ * @file
+ * Helper functions for the Paragraphs Extra module.
+ */
+
 (function ($) {
   Drupal.ParagraphsExtra = Drupal.ParagraphsExtra || {};
 

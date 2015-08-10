@@ -258,7 +258,7 @@
      * @param field
      * @param value
      */
-    function createParagraph(bundle, values) {
+    var createParagraph = function (bundle, values) {
       var paragraph = {
         bundle: bundle,
       };

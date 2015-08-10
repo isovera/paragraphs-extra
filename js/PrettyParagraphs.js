@@ -369,7 +369,7 @@
      * @return
      *  A settings object with the resolved effects.
      */
-    function loadEffects(settings, showEffect, hideEffect) {
+    var loadEffects = function (settings, showEffect, hideEffect) {
       var rtn = {};
       if (typeof showEffect == 'undefined') {
         rtn.showEffect = settings.defaultShowEffect;
@@ -437,7 +437,7 @@
       this.setViewMode(field_instance, list.pop());
     }
 
-    function setActiveButton(field_instance, viewmode) {
+    var setActiveButton = function (field_instance, viewmode) {
       var $toolbar = Drupal.ParagraphsExtra.lookup('pretty-paragraphs', 'viewmode-toolbar', field_instance.$);
       var view_mode_attr = Drupal.ParagraphsExtra.dataName('pretty-paragraphs', 'viewmode');
 

@@ -1,3 +1,8 @@
+/**
+ * @file
+ * Provides a bundle selection modal through the CTools API.
+ */
+
 (function ($) {
 
   Drupal.ParagraphsExtra = Drupal.ParagraphsExtra || {};

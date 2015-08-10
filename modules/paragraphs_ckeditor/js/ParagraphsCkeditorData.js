@@ -3,7 +3,7 @@
  * Contains a helper object for dealing with ckeditor fields.
  */
 
-function ParagraphsCkeditorData(editor) {
+var ParagraphsCkeditorData = function (editor) {
   var $ = jQuery;
 
   this.$editor = $(editor.element.$);
