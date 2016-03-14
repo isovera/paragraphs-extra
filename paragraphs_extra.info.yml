@@ -1,0 +1,8 @@
+name: Paragraphs Extra
+type: module
+description: 'Provides a wealth of additional functionality for the Paragraphs module.'
+dependencies:
+  - paragraphs
+package: Paragraphs
+# version: VERSION
+# core: 8.x
