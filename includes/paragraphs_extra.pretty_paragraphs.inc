@@ -19,7 +19,8 @@ function paragraphs_extra_pretty_paragraphs_attach($wrapper_id, &$element, &$for
   $element['#attached']['css'][] = drupal_get_path('module', 'paragraphs_extra') . '/css/pretty_paragraphs.css';
 
   // Get a list of features to enable based on the field configuration.
-  $settings = paragraphs_extra_pretty_paragraphs_load_instance_settings($element['#instance']);
+  $settings = _paragraphs_extra_pretty_paragraphs_instance_settings($element['#instance']);
+
   $element['add_more']['paragraphs_extra']['pretty_paragraphs'] = array(
     '#tree' => TRUE,
   );
@@ -512,67 +513,6 @@ function paragraphs_extra_pretty_paragraphs_reload_ajax($form, &$form_state) {
 }
 
 /**
- * Loads the Pretty Paragraphs settings for a field instance from the database.
- *
- * @param array $instance
- *   The field instance to load the settings for.
- *
- * @return array
- *   An array with key value pairs representing 'Pretty Paragraphs' settings.
- */
-function paragraphs_extra_pretty_paragraphs_load_instance_settings($instance) {
-  $settings_registry = _paragraphs_extra_vget('pretty_paragraphs_instance', array());
-  $key = _paragraphs_extra_pretty_paragraphs_instance_settings_key($instance);
-  $settings = isset($settings_registry[$key]) ? $settings_registry[$key] : array();
-
-  $required_keys = array(
-    'click_to_edit',
-    'modal_select',
-    'preview_modes',
-    'insert_between',
-  );
-
-  if ($instance['settings']['default_edit_mode'] == 'open') {
-
-    foreach ($required_keys as $key) {
-      if (!isset($settings[$key])) {
-        $settings[$key] = NULL;
-      }
-    }
-
-    if (!$settings['modal_select']) {
-      $settings['insert_between'] = FALSE;
-    }
-
-    if (!$settings['click_to_edit']) {
-      $settings['preview_modes'] = FALSE;
-    }
-  }
-  else {
-    foreach ($required_keys as $key) {
-      $settings[$key] = NULL;
-    }
-  }
-
-  return $settings;
-}
-
-/**
- * Saves the 'Pretty Paragraphs' settings for a field instance to the database.
- *
- * @param array $instance
- *   The field instance to save the settings for.
- * @param array $settings
- *   The field instance settings to save.
- */
-function paragraphs_extra_pretty_paragraphs_save_instance_settings($instance, $settings) {
-  $settings_registry = _paragraphs_extra_vget('pretty_paragraphs_instance', array());
-  $key = _paragraphs_extra_pretty_paragraphs_instance_settings_key($instance);
-  $settings_registry[$key] = $settings;
-  _paragraphs_extra_vset('pretty_paragraphs_instance', $settings_registry);
-}
-
-/**
  * Attaches the Pretty Paragraphs settings to a field instance settings form.
  *
  * @param array &$form
@@ -581,11 +521,12 @@ function paragraphs_extra_pretty_paragraphs_save_instance_settings($instance, $s
  *   The form_state for the field instance settings form.
  */
 function paragraphs_extra_pretty_paragraphs_attach_instance_settings(&$form, &$form_state) {
-  $settings = paragraphs_extra_pretty_paragraphs_load_instance_settings($form_state['build_info']['args'][0]);
+  $settings = _paragraphs_extra_pretty_paragraphs_instance_settings($form_state['build_info']['args'][0]);
   $wrapper_id = _paragraphs_extra_id('pretty_paragraphs', 'options');
-  $form['instance']['settings']['paragraphs_extra']['pretty_paragraphs'] = array(
+  $form['instance']['settings']['paragraphs_extra']['behaviors']['pretty_paragraphs'] = array(
     '#type' => 'fieldset',
     '#title' => t('Pretty Paragraphs'),
+    '#weight' => -10,
     '#description' => t('Select which Pretty Paragraphs features you wish to enable. Note that the Default edit mode must be set to open.'),
     '#attributes' => array(
       'id' => array($wrapper_id),
@@ -643,45 +584,31 @@ function paragraphs_extra_pretty_paragraphs_attach_instance_settings(&$form, &$f
       ),
     ),
   );
-  $form['#submit'][] = 'paragraphs_extra_pretty_paragraphs_instance_settings_submit';
 }
 
-/**
- * Submit handler for the field instance settings form.
- *
- * @param array &$form
- *   The field instance settings form.
- * @param array &$form_state
- *   The form_state for the field instance settings form.
- */
-function paragraphs_extra_pretty_paragraphs_handle_instance_settings_submit(&$form, &$form_state) {
-  $settings = paragraphs_extra_pretty_paragraphs_load_instance_settings($form_state['build_info']['args'][0]);
-  $values = $form_state['values']['instance']['settings']['paragraphs_extra']['pretty_paragraphs'];
+function _paragraphs_extra_pretty_paragraphs_instance_settings($instance) {
+  $settings = _paragraphs_extra_instance_settings($instance, 'pretty_paragraphs', array(
+    'click_to_edit' => FALSE,
+    'modal_select' => FALSE,
+    'preview_modes' => FALSE,
+    'insert_between' => FALSE,
+  ));
 
-  foreach ($settings as $key => $value) {
-    if (isset($values[$key])) {
-      if ($form_state['values']['instance']['settings']['default_edit_mode'] == 'open') {
-        $value = $values[$key];
-      }
-      else {
-        $value = FALSE;
-      }
-      $settings[$key] = $value;
+  if ($instance['settings']['default_edit_mode'] == 'open') {
+
+    if (!$settings['modal_select']) {
+      $settings['insert_between'] = FALSE;
+    }
+
+    if (!$settings['click_to_edit']) {
+      $settings['preview_modes'] = FALSE;
+    }
+  }
+  else {
+    foreach ($required_keys as $key) {
+      $settings[$key] = NULL;
     }
   }
 
-  paragraphs_extra_pretty_paragraphs_save_instance_settings($form_state['build_info']['args'][0], $settings);
-}
-
-/**
- * Creates a unique 'Pretty Paragraphs' settings key for a field instance.
- *
- * @param array $instance
- *   The field instance to generate the key for.
- *
- * @return string
- *   A unique settings key associated with a paragraphs field instance.
- */
-function _paragraphs_extra_pretty_paragraphs_instance_settings_key($instance) {
-  return $instance['field_name'] . '_' . $instance['entity_type'] . '_' . $instance['bundle'];
+  return $settings;
 }

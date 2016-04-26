@@ -1,0 +1,46 @@
+[dir="ltr"]
+.paragraphs-ckeditor-tabs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  padding: 0;
+  background-image: -webkit-gradient( linear, left bottom, left top, color-stop(0.1, rgba(66,66,66,0.1)), color-stop(1, rgba(255,255,255,0.0)) );
+  border: 1px solid #b6b6b6;
+  border-bottom: 0;
+}
+
+.paragraphs-ckeditor-tabs__tab {
+  display: inline-block;
+  margin: 0;
+  font-size: 1rem;
+  font-weight:bold;
+  border: 0;
+  border-right: 1px solid #ccc;
+  padding: .5rem 1rem;
+}
+
+.paragraphs-ckeditor-tabs__tab:first-child {
+  border-left: 0;
+}
+
+.paragraphs-ckeditor-tabs__tab:last-child {
+  border-right: 0;
+}
+
+.paragraphs-ckeditor-tabs__tab--active {
+  background: #fff;
+  background: #fff;
+  border-right: 1px solid #ccc;
+  border-bottom: 0;
+}
+
+.paragraphs-ckeditor-tabs__tab a {
+  color: #333;
+}
+
+.paragraphs-extra-widget-container {
+  padding: 1rem;
+  background: #fff;
+  border: 1px solid #b6b6b6;
+  border-top: 0;
+}

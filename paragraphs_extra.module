@@ -11,8 +11,8 @@ include_once 'paragraphs_extra.features.inc';
  * Implements hook_menu().
  */
 function paragraphs_extra_menu() {
-  $info = array();
-  $info['admin/paragraphs-extra/%ctools_js/bundle-select/%'] = array(
+  $items = array();
+  $items['admin/paragraphs-extra/%ctools_js/bundle-select/%'] = array(
     'title' => 'Insert',
     'page callback' => 'paragraphs_extra_bundle_info_select_page',
     'page arguments' => array(2, 4),
@@ -21,7 +21,39 @@ function paragraphs_extra_menu() {
     'file' => 'paragraphs_extra.bundle_info.inc',
     'file path' => drupal_get_path('module', 'paragraphs_extra') . '/includes',
   );
-  return $info;
+  return $items;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function paragraphs_extra_theme() {
+  return array(
+    'paragraphs_extra_field_multiple_value_form' => array(
+      'render element' => 'element',
+    ),
+    'paragraphs_extra_widget_settings_list' => array(
+      'render element' => 'element',
+    ),
+  );
+}
+
+/**
+ * Defines built-in paragraphs widgets.
+ */
+function paragraphs_extra_widget_info() {
+  return array(
+    'default' => array(
+      'title' => t('Default Editor'),
+      'weight' => 0,
+      'class' => '\Drupal\paragraphs_extra\Widget\Plugins\ListEditor',
+    ),
+    'preview' => array(
+      'title' => t('Preview'),
+      'weight' => 10,
+      'class' => '\Drupal\paragraphs_extra\Widget\Plugins\Preview',
+    ),
+  );
 }
 
 /**
@@ -31,6 +63,9 @@ function paragraphs_extra_field_widget_form_alter(&$element, &$form_state, $cont
   $wrapper_id = paragraphs_extra_get_widget_wrapper_id($element, $context);
   if ($wrapper_id) {
     $element['#attached']['js'][] = drupal_get_path('module', 'paragraphs_extra') . '/js/ParagraphsExtra.js';
+
+    paragraphs_extra_include('widget');
+    paragraphs_extra_widget_attach($wrapper_id, $element, $form_state, $context);
 
     paragraphs_extra_include('ajax_api');
     paragraphs_extra_ajax_api_attach($wrapper_id, $element, $context);
@@ -48,8 +83,21 @@ function paragraphs_extra_field_widget_form_alter(&$element, &$form_state, $cont
  */
 function paragraphs_extra_form_field_ui_field_edit_form_alter(&$form, &$form_state) {
   if ($form['#field']['type'] == 'paragraphs') {
+    $form['instance']['settings']['paragraphs_extra'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Paragraphs Extra'),
+      'behaviors' => array(
+        '#type' => 'horizontal_tabs',
+        '#title' => t('Paragraphs Extra'),
+        '#tree' => TRUE,
+        '#attached' => array('library' => array(array('field_group', 'horizontal-tabs'))),
+      ),
+    );
     paragraphs_extra_include('pretty_paragraphs');
     paragraphs_extra_pretty_paragraphs_attach_instance_settings($form, $form_state);
+
+    paragraphs_extra_include('widget');
+    paragraphs_extra_widget_attach_instance_settings($form, $form_state);
   }
 }
 /**
@@ -68,6 +116,30 @@ function paragraphs_extra_field_attach_delete_bundle($entity_type, $bundle, $ins
     paragraphs_extra_include('bundle_info');
     paragraphs_extra_bundle_info_handle_delete($bundle);
   }
+}
+
+/**
+ * Form validator for the paragraphs widget.
+ */
+function paragraphs_extra_widget_validate($element, &$form_state, $complete_form) {
+  paragraphs_extra_include('widget');
+  paragraphs_extra_widget_validate_hander($element, $form_state, $complete_form);
+}
+
+/**
+ * Submit handler for rebuilding the paragraphs widget.
+ */
+function paragraphs_extra_widget_switch_submit($form, &$form_state) {
+  paragraphs_extra_include('widget');
+  paragraphs_extra_widget_switch_submit_handler($form, $form_state);
+}
+
+/**
+ * Ajax handler for returning the rebuilt paragarphs widget.
+ */
+function paragraphs_extra_widget_switch_ajax($form, &$form_state) {
+  paragraphs_extra_include('widget');
+  return paragraphs_extra_widget_switch_ajax_handler($form, $form_state);
 }
 
 /**
@@ -108,6 +180,107 @@ function paragraphs_extra_pretty_paragraphs_preview_rebuild_submit($form, &$form
 function paragraphs_extra_pretty_paragraphs_instance_settings_submit($form, &$form_state) {
   paragraphs_extra_include('pretty_paragraphs');
   paragraphs_extra_pretty_paragraphs_handle_instance_settings_submit($form, $form_state);
+}
+
+/**
+ * Renders a paragraphs widget.
+ */
+function theme_paragraphs_extra_field_multiple_value_form($variables) {
+  $form_state = array();
+  $settings = $variables['element']['#paragraphs_extra_widget_settings'];
+  $active = \Drupal\paragraphs_extra\Widget\Api::getCurrentWidget($settings['widgets'], $variables['element'], $form_state);
+
+  $markup = '<ul class="paragraphs-ckeditor-tabs">';
+
+  // Render the tabs for each widget.
+  foreach ($settings['widgets']['list'] as $name => $info) {
+    // Only render a tab for enabled widgets.
+    if ($info['enabled']) {
+      $markup .= '<li class="paragraphs-ckeditor-tabs__tab';
+      // If the tab currently being rendered is for the active widget then we
+      // mark it as the active tab.
+      if ($active && $active->getType() == $name) {
+        $markup .= ' paragraphs-ckeditor-tabs__tab--active';
+      }
+      $markup .= '"><a href="?edit='. $name .'">' . $info['title'] . '</a></li>';
+    }
+  }
+
+  $markup .= '</ul>';
+  $markup .= '<div class="paragraphs-extra-widget-container">';
+
+  // Hide any paragraphs extra elements during the widget element rendering
+  // process. These can cause extra elements to get rendered in the wrong place.
+  $paragraphs_extra = $variables['element']['add_more']['paragraphs_extra'];
+  unset($variables['element']['add_more']['paragraphs_extra']);
+
+  // Since the pretty paragraphs elements can be applied to the default widget
+  // we need to put these back and let the active widget decide whether to
+  // render them.
+  $variables['element']['add_more']['paragraphs_extra']['pretty_paragraphs'] = $paragraphs_extra['pretty_paragraphs'];
+
+  // Render the active widget form element.
+  if ($active) {
+    $element = $active->getElement();
+    if ($element) {
+      $markup .= $active->render($variables, $element);
+    }
+  }
+
+  // Since the active widget is responsible for rendering the pretty paragraphs
+  // elements we get rid of them here. The widgets form element contains an
+  // array of widget elements where the active element is the only non-empty
+  // subarray. Since the active widget was just rendered we don't want to render
+  // this twice.
+  unset($paragraphs_extra['pretty_paragraphs']);
+  unset($paragraphs_extra['widget']['widgets']);
+
+  $markup .= '</div>';
+
+  // Render any remaining attached elements from the paragraphs extra module.
+  // Anything remaining here should be invisible API related elements.
+  $markup .= drupal_render($paragraphs_extra);
+
+  return $markup;
+}
+
+function theme_paragraphs_extra_widget_settings_list($variables) {
+  $element = $variables['element'];
+  $rows = array();
+
+  // Set up draggable table rows.
+  foreach (element_children($element) as $name) {
+    $element[$name]['weight']['#attributes']['class'][] = 'paragraphs-extra-settings-list-weight';
+    $rows[] = array(
+      'data' => array(
+        drupal_render($element[$name]['name']),
+        drupal_render($element[$name]['enabled']),
+        drupal_render($element[$name]['title']),
+        drupal_render($element[$name]['weight']),
+      ),
+      'class' => array('draggable'),
+    );
+  }
+
+  $header = array(t('Widget'), t('Enabled'), t('title'), t('Weight'));
+  $table_id = drupal_html_id('paragraphs_extra_settings_list_table');
+
+  // Render the draggable table and any remaining table elements.
+  $table = array(
+      '#theme' => 'table',
+      '#header' => $header,
+      '#rows' => $rows,
+      '#attributes' => array(
+        'id' => array($table_id),
+      ),
+  );
+
+  $output = drupal_render($table) . drupal_render_children($element);
+
+  // Add the table drag behavior to the newly rendered table.
+  drupal_add_tabledrag($table_id, 'order', 'sibling', 'paragraphs-extra-settings-list-weight');
+
+  return $output;
 }
 
 /**
@@ -231,4 +404,14 @@ function _paragraphs_extra_vget($key, $default = NULL) {
  */
 function _paragraphs_extra_vset($key, $value) {
   return variable_set('paragraphs_extra_' . $key, $value);
+}
+
+function _paragraphs_extra_instance_settings($instance, $namespace, $default) {
+  if (is_array($instance)) {
+    return isset($instance['settings']['paragraphs_extra']['behaviors'][$namespace])
+      ? $instance['settings']['paragraphs_extra']['behaviors'][$namespace] : $default;
+  }
+  else {
+    return $default;
+  }
 }
