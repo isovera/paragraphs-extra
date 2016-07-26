@@ -85,17 +85,20 @@ function paragraphs_extra_bundle_info_form_attach(&$form, &$form_state) {
     '#default_value' => isset($bundle_info->description) ? $bundle_info->description : '',
   );
 
-  $form['paragraphs_extra']['icon'] = array(
-    '#type' => 'managed_file',
+  $icon_1 = theme('image', array(
+    'path' => drupal_get_path('module', 'paragraphs_extra') . '/images/image_icon.svg',
+    'alt' => t('Image icon'),
+    'title' => t('Image icon'),
+  ));
+  $icon_library = array(0 => t('No icon'), 1 => $icon_1);
+  $form['paragraphs_extra']['new_icon'] = array(
+    '#type' => 'radios',
     '#title' => t('Icon'),
-    '#description' => t('An icon to show for bundle selection.'),
     '#default_value' => isset($bundle_info->icon) ? $bundle_info->icon : '',
-    '#upload_location' => 'public://',
-  );
-
-  $form['paragraphs_extra']['old_icon'] = array(
-    '#type' => 'hidden',
-    '#default_value' => isset($bundle_info->icon) ? $bundle_info->icon : '',
+    '#options' => $icon_library,
+      '#description' => t('An icon to show for bundle selection.'),
+    '#access' => TRUE,
+    '#required' => FALSE,
   );
 
   $form['#submit'][] = 'paragraphs_extra_bundle_info_form_submit';
