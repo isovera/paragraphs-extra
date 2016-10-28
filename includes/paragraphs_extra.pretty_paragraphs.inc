@@ -587,14 +587,15 @@ function paragraphs_extra_pretty_paragraphs_attach_instance_settings(&$form, &$f
 }
 
 function _paragraphs_extra_pretty_paragraphs_instance_settings($instance) {
-  $settings = _paragraphs_extra_instance_settings($instance, 'pretty_paragraphs', array(
+  $required_keys = array(
     'click_to_edit' => FALSE,
     'modal_select' => FALSE,
     'preview_modes' => FALSE,
     'insert_between' => FALSE,
-  ));
+  );
+  $settings = _paragraphs_extra_instance_settings($instance, 'pretty_paragraphs', $required_keys);
 
-  if ($instance['settings']['default_edit_mode'] == 'open') {
+  if (isset($instance['settings']['default_edit_mode']) && $instance['settings']['default_edit_mode'] == 'open') {
 
     if (!$settings['modal_select']) {
       $settings['insert_between'] = FALSE;
